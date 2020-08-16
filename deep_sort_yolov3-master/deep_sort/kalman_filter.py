@@ -9,6 +9,10 @@ Table for the 0.95 quantile of the chi-square distribution with N degrees of
 freedom (contains values for N=1, ..., 9). Taken from MATLAB/Octave's chi2inv
 function and used as Mahalanobis gating threshold.
 """
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
 chi2inv95 = {
     1: 3.8415,
     2: 5.9915,
@@ -32,10 +36,13 @@ class KalmanFilter(object):
         self._update_mat = np.eye(ndim,2*ndim)
         self.particle =  np.zeros((self.particle_num,8))
 
+<<<<<<< HEAD
+=======
         for i in range(self.particle_num):
             self.particle[i,0] = np.random.randint(640)
             self.particle[i,1] = np.random.randint(480)
         self.particle[:,2:8] = 1;
+>>>>>>> master
     
         # Motion and observation uncertainty are chosen relative to the current
         # state estimate. These weights control the amount of uncertainty in
@@ -60,15 +67,31 @@ class KalmanFilter(object):
             1e-5,
             10 * self._std_weight_velocity * measurement[3]]
         covariance = np.diag(np.square(std))
+<<<<<<< HEAD
+
+        for i in range(self.particle_num):
+            self.particle[i,0] = mean[0]+np.random.randn()*100
+            self.particle[i,1] = mean[1]+np.random.randn()*100
+        self.particle[:,2:8] = 0;
+=======
+>>>>>>> master
         
         return mean, covariance
 
     def predict(self,mean,covariance):
         #状態方程式によるx(t+1)の予測
+<<<<<<< HEAD
+        for i in range(self.particle_num):
+            self.particle[i,0] += np.random.randn()*300
+            self.particle[i,1] += np.random.randn()*100
+       # print(self.particle)
+
+=======
         self.particle[:,0] =  self.particle[:,0] + np.random.randn()*200
         self.particle[:,1] =  self.particle[:,1] + np.random.randn()*200
         self.particle = abs(self.particle)
        # print(self.particle)
+>>>>>>> master
         std_pos = [
             self._std_weight_position * mean[3],
             self._std_weight_position * mean[3],
@@ -111,11 +134,38 @@ class KalmanFilter(object):
         mean = np.dot(self._update_mat, mean)
         covariance = np.linalg.multi_dot((
             self._update_mat, covariance, self._update_mat.T))
+<<<<<<< HEAD
+=======
         print(mean)
+>>>>>>> master
         return mean, covariance + innovation_cov
 
 
     def update(self,mean,covariance,measurement):
+<<<<<<< HEAD
+        projected_mean,projected_cov = self.project(mean,covariance)
+       # print(projected_cov)
+        for i in range(self.particle_num):
+            self.w[i] = 1/(abs(self.particle[i,0]-measurement[0])+abs(self.particle[i,1]-measurement[1]))
+        weights = sum(self.w)
+        new_covariance = np.zeros((8,8))
+        new_mean = np.zeros(8)
+        square = np.eye(8,8)
+        for i in range(self.particle_num):
+            self.w[i] = self.w[i]/weights
+            new_mean[0:2] += self.particle[i,0:2]*self.w[i]
+        new_mean[2] = mean[2]
+        new_mean[3] = mean[3]
+        
+        for i in range(self.particle_num):
+            new_covariance += np.diag((self.particle[i,:]-new_mean) * ((self.particle[i,:]-new_mean).T )*  self.w[i])
+        #print(new_covariance)
+        for i in range(self.particle_num):
+            self.particle[i,:] = new_mean + (np.random.randn(square.shape[0]))*(np.diag(scipy.linalg.sqrtm(new_covariance)))
+        print(measurement)
+        new_mean = abs(new_mean)
+        print(new_mean)
+=======
         for i in range(self.particle_num):
             self.w[i] = 1000/(abs(self.particle[i][0]-measurement[0])+abs(self.particle[i][1]-measurement[1]))
         weights = sum(self.w)
@@ -137,6 +187,7 @@ class KalmanFilter(object):
         print(measurement)
         new_mean = mean
         new_covariance = P
+>>>>>>> master
         return new_mean,new_covariance
 
 
